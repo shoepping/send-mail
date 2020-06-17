@@ -18,7 +18,7 @@ public class SendMail {
 
     private static final Logger LOGGER = Logger.getLogger(SendMail.class.getName());
 
-    // "noreply@shoeppingtest.at" "recipient" "subject" "message" "send_grid_api_key" "additional_recipients_semicolon_separated_string"
+    // "from_address" "recipient" "subject" "message" "send_grid_api_key" "additional_recipients_semicolon_separated_string"
     public static void main(String[] args) throws IOException {
 
         if(args == null || args.length < 5 ) {
