@@ -10,7 +10,7 @@ import com.sendgrid.helpers.mail.objects.Email;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,35 +18,33 @@ public class SendMail {
 
     private static final Logger LOGGER = Logger.getLogger(SendMail.class.getName());
 
-    // "from_address" "recipient" "subject" "message" "send_grid_api_key" "additional_recipients_semicolon_separated_string"
-    public static void main(String[] args) throws IOException {
-
+    // "from_address" "recipient_comma_separated" "subject" "message" "send_grid_api_key"
+    public static void main(String[] args) {
         if(args == null || args.length < 5 ) {
-            LOGGER.info("Usage: from-email to-email subject message send-grid-api-key additional_recipients_semicolon_separated_string");
+            LOGGER.info("Usage: from-email recipient-email subject message send-grid-api-key");
             System.exit(0);
         }
         String from = args[0];
-        String to = args[1];
+        Collection<String> recipientList = new ArrayList<>(Arrays.asList(args[1].split(",")));
+        String toString = recipientList.iterator().next();
+        recipientList.remove(toString);
         String subject = args[2];
         String message = args[3];
         String apiKey = args[4];
-        List<String> toList = new ArrayList<String>();
-        if(args.length == 6 && !args[5].isEmpty()) {
-            toList =  Arrays.asList(args[5].split(";"));
-        }
-        SendMail.sendMail(from, subject, to, toList,  message, apiKey);
+        SendMail.sendMail(from, subject, toString, recipientList,  message, apiKey);
     }
 
-    public static void sendMail(String fromString, String subjectString, String toString, List<String> toList, String message, String apiKey) {
+    public static void sendMail(String fromString, String subject,
+                                String toString, Collection<String> recipientList,
+                                String message, String apiKey) {
         LOGGER.log(Level.INFO,"from: {0}, \nsubject: {1}, \nto: {2}, \ntoList: {3}, \nmessage: {4}",
-                new Object[] {fromString, subjectString, toString, toList, message});
+                new Object[] {fromString, subject, toString, recipientList, message});
         Email from = new Email(fromString);
-        String subject = subjectString;
         Email to = new Email(toString);
         Content content = new Content("text/plain", message);
         Mail mail = new Mail(from, subject, to, content);
-        for(String toEmail : toList) {
-            LOGGER.log(Level.INFO, "adding to: {0}", toEmail);
+        for(String toEmail : recipientList) {
+            LOGGER.log(Level.INFO, "additional recipient: {0}", toEmail);
             mail.getPersonalization().get(0).addTo(new Email(toEmail));
         }
 

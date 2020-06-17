@@ -10,7 +10,7 @@ COPY . $APP_HOME
 
 RUN mvn package
 
-FROM openjdk:8-jre
+FROM openjdk:11.0-jre
 
 WORKDIR /root/
 

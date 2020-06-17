@@ -3,9 +3,9 @@
     ```
     docker run -it shoepping/send-mail:20.06.17 \
         "from_address" \
-        "to_address" \
+        "recipient" \
         "subject" \
         "message" \
-        "sendgrid_api_key" \
-        "additional_recipients_semicolon_separated_string"
+        "sendgrid_api_key"
+    for multiple recipients use comma separated list
     ```
