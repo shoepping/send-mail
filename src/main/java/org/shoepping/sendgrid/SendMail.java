@@ -2,6 +2,8 @@ package org.shoepping.sendgrid;
 
 // using SendGrid's Java Library
 // https://github.com/sendgrid/sendgrid-java
+// for inspiration
+// https://github.com/sendgrid/sendgrid-java/blob/master/examples/helpers/mail/Example.java
 import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
