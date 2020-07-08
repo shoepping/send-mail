@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 public class SendMail {
 
     private static final Logger LOGGER = Logger.getLogger(SendMail.class.getName());
+    private static SendGrid SEND_GRID;
 
     // "from_address" "recipient_comma_separated" "subject" "message" "send_grid_api_key"
     public static void main(String[] args) {
@@ -28,21 +29,24 @@ public class SendMail {
         }
         String from = args[0];
         Collection<String> recipientList = new ArrayList<>(Arrays.asList(args[1].split(",")));
-        String toString = recipientList.iterator().next();
-        recipientList.remove(toString);
         String subject = args[2];
         String message = args[3];
         String apiKey = args[4];
-        SendMail.sendMail(from, subject, toString, recipientList,  message, apiKey);
+        SEND_GRID = new SendGrid(apiKey);
+        // SendMail.sendMail(from, subject, recipientList,  message, apiKey);
+        SendMail.sendMailOneByOne(from, subject, recipientList, message);
     }
 
     public static void sendMail(String fromString, String subject,
-                                String toString, Collection<String> recipientList,
+                                Collection<String> recipientList,
                                 String message, String apiKey) {
-        LOGGER.log(Level.INFO,"from: {0}, \nsubject: {1}, \nto: {2}, \ntoList: {3}, \nmessage: {4}",
+
+        String toString = recipientList.iterator().next();
+        LOGGER.log(Level.INFO,"from: {0}, \nsubject: {1}, \nto: {2}, \nrecipientList: {3}, \nmessage: {4}",
                 new Object[] {fromString, subject, toString, recipientList, message});
         Email from = new Email(fromString);
         Email to = new Email(toString);
+        recipientList.remove(toString);
         Content content = new Content("text/plain", message);
         Mail mail = new Mail(from, subject, to, content);
         for(String toEmail : recipientList) {
@@ -50,16 +54,40 @@ public class SendMail {
             mail.getPersonalization().get(0).addTo(new Email(toEmail));
         }
 
-        SendGrid sg = new SendGrid(apiKey);
+        sendMail(mail);
+    }
+
+    public static void sendMailOneByOne(String fromString, String subject,
+                                Collection<String> recipientList,
+                                String message) {
+        LOGGER.log(Level.INFO,"from: {0}, \nsubject: {1}, \nrecipientList: {3}, \nmessage: {4}",
+                new Object[] {fromString, subject, recipientList, message});
+        for(String toEmail : recipientList) {
+            Mail mail = buildEmail(fromString, subject, toEmail, message);
+            sendMail(mail);
+        }
+    }
+
+
+    private static Mail buildEmail(String fromString, String subject,
+                                   String recipient, String message) {
+        Email from = new Email(fromString);
+        Email to = new Email(recipient);
+        Content content = new Content("text/plain", message);
+        return new Mail(from, subject, to, content);
+    }
+
+    private static void sendMail(Mail mail) {
+
         Request request = new Request();
         try {
             request.setMethod(Method.POST);
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
-            Response response = sg.api(request);
-            System.out.println(response.getStatusCode());
-            System.out.println(response.getBody());
-            System.out.println(response.getHeaders());
+            Response response = SEND_GRID.api(request);
+            LOGGER.log(Level.INFO, ""+response.getStatusCode());
+            LOGGER.log(Level.INFO, response.getBody());
+            LOGGER.log(Level.INFO, response.getHeaders().toString());
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE,"Error encountered while sending email", ex);
         }
