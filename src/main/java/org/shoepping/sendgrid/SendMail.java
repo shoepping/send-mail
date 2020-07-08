@@ -60,7 +60,7 @@ public class SendMail {
     public static void sendMailOneByOne(String fromString, String subject,
                                 Collection<String> recipientList,
                                 String message) {
-        LOGGER.log(Level.INFO,"from: {0}, \nsubject: {1}, \nrecipientList: {3}, \nmessage: {4}",
+        LOGGER.log(Level.INFO,"from: {0}, \nsubject: {1}, \nrecipientList: {2}, \nmessage: {3}",
                 new Object[] {fromString, subject, recipientList, message});
         for(String toEmail : recipientList) {
             Mail mail = buildEmail(fromString, subject, toEmail, message);
