@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,6 +66,11 @@ public class SendMail {
         for(String toEmail : recipientList) {
             Mail mail = buildEmail(fromString, subject, toEmail, message);
             sendMail(mail);
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException e) {
+                LOGGER.log(Level.WARNING, "wait between sending mails - exception: ", e);
+            }
         }
     }
 
